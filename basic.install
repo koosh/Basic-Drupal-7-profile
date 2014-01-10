@@ -69,6 +69,7 @@ function basic_install() {
   filter_format_save($full_html_format);
 
   // Enable some standard blocks.
+  variable_set('theme_default', 'omega');
   $default_theme = variable_get('theme_default', 'omega');
   $admin_theme = 'seven';
   $blocks = array(
@@ -108,7 +109,7 @@ function basic_install() {
       'theme' => $default_theme,
       'status' => 1,
       'weight' => 0,
-      'region' => 'user_second',
+      'region' => 'sidebar_first',
       'pages' => '',
       'cache' => -1,
     ),
@@ -181,8 +182,8 @@ function basic_install() {
 
   // Enable default permissions for system roles.
   $filtered_html_permission = filter_permission_name($filtered_html_format);
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'access comments', $filtered_html_permission));
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $filtered_html_permission));
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', $filtered_html_permission));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', $filtered_html_permission));
 
   // Create a default role for site administrators, with all available permissions assigned.
   $admin_role = new stdClass();
@@ -209,14 +210,26 @@ function basic_install() {
   // Update the menu router information.
   menu_rebuild();
 
-  /*
-  // Enable the admin theme.
+  // Enable the cmtls_base theme.
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
+    ->condition('name', 'omega')
+    ->execute();
+
+  // disable bartik and seven
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
+    ->condition('name', 'bartik')
+    ->execute();
+
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
     ->condition('name', 'seven')
     ->execute();
-  */
+
   variable_set('admin_theme', 'seven');
   variable_set('node_admin_theme', '1');
 }
